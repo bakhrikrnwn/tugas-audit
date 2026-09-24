@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Komparasi IASII vs ISACA - Audit Sistem Informasi</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Komparasi Interaktif IASII vs ISACA - Audit Sistem Informasi</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (Inter & Plus Jakarta Sans) -->
+    
+    <!-- Chart.js for Visual Data Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -25,6 +32,7 @@
                             50: '#f0f7ff',
                             100: '#e0effe',
                             500: '#0284c7',
+                            600: '#0284c7',
                             700: '#0369a1',
                             900: '#0c4a6e',
                         },
@@ -32,6 +40,7 @@
                             50: '#f0fdf4',
                             100: '#dcfce7',
                             500: '#16a34a',
+                            600: '#16a34a',
                             700: '#15803d',
                             900: '#14532d',
                         }
@@ -42,470 +51,513 @@
     </script>
     <style>
         .glass-card {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(229, 231, 235, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.8);
         }
         .gradient-bg {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
         }
+        .tab-active {
+            border-bottom: 3px solid #0284c7;
+            color: #0284c7;
+            font-weight: 700;
+        }
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; color: black !important; }
-            .shadow-xl, .shadow-md, .shadow-lg { box-shadow: none !important; }
+            .shadow-xl, .shadow-md, .shadow-lg, .shadow-sm { box-shadow: none !important; }
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
 
-    <!-- Header Navigation -->
     <header class="sticky top-0 z-50 glass-card border-b border-slate-200/80 shadow-sm no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-3">
-                    <div class="bg-gradient-to-r from-sky-600 to-emerald-600 p-2 rounded-lg text-white">
-                        <i class="fa-solid fa-shield-halved text-xl"></i>
+                    <div class="bg-gradient-to-r from-sky-600 to-emerald-600 p-2.5 rounded-xl text-white shadow-sm">
+                        <i class="fa-solid fa-layer-group text-lg"></i>
                     </div>
                     <div>
-                        <span class="font-heading font-bold text-lg text-slate-900 tracking-tight block leading-tight">AUDIT SI</span>
+                        <span class="font-heading font-bold text-base sm:text-lg text-slate-900 tracking-tight block leading-tight">AUDIT SI LAB</span>
                         <span class="text-xs text-slate-500 font-medium">IASII vs ISACA Interactive Showcase</span>
                     </div>
                 </div>
-                <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
-                    <a href="#profil" class="text-slate-600 hover:text-sky-600 transition-colors">Profil Organisasi</a>
-                    <a href="#kode-etik" class="text-slate-600 hover:text-sky-600 transition-colors">Kode Etik</a>
-                    <a href="#standar-audit" class="text-slate-600 hover:text-sky-600 transition-colors">Standar Audit</a>
-                    <a href="#komparasi-matriks" class="text-slate-600 hover:text-sky-600 transition-colors">Matriks Komparasi</a>
-                    <a href="#sintesis" class="text-slate-600 hover:text-sky-600 transition-colors">Kesimpulan</a>
+
+                <!-- Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-5 text-sm font-medium">
+                    <a href="#simulator" class="text-slate-600 hover:text-sky-600 transition-colors">Simulator</a>
+                    <a href="#visual-comparison" class="text-slate-600 hover:text-sky-600 transition-colors">Visual & Venn</a>
+                    <a href="#matrix" class="text-slate-600 hover:text-sky-600 transition-colors">Matriks Komparasi</a>
+                    <a href="#quiz" class="text-slate-600 hover:text-sky-600 transition-colors">Kuis Interaktif</a>
                 </nav>
-                <button onclick="window.print()" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-sm">
-                    <i class="fa-solid fa-print"></i> Cetak Dokumen
-                </button>
+
+                <!-- Audio Presentation & Action Bar -->
+                <div class="flex items-center gap-2">
+                    <!-- Audio Player Button -->
+                    <button id="btn-audio-narrate" onclick="toggleAudioNarration()" class="inline-flex items-center gap-2 bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-700 hover:to-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all shadow-sm">
+                        <i id="audio-icon" class="fa-solid fa-volume-high"></i>
+                        <span id="audio-text" class="hidden sm:inline">Narasi Audio</span>
+                    </button>
+
+                    <!-- Export Summary Button -->
+                    <button onclick="copySummaryToClipboard()" class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-2 rounded-lg transition-colors border border-slate-300">
+                        <i class="fa-regular fa-copy"></i>
+                        <span class="hidden sm:inline">Salin Ringkasan</span>
+                    </button>
+
+                    <!-- Print Button -->
+                    <button onclick="window.print()" class="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors shadow-sm">
+                        <i class="fa-solid fa-print"></i>
+                        <span class="hidden sm:inline">Cetak</span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-grow">
-        <!-- Hero Section -->
-        <section class="gradient-bg text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-            <div class="absolute inset-0 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:16px_16px] opacity-10"></div>
+        <!-- Hero Banner -->
+        <section class="gradient-bg text-white py-14 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(#38bdf8_1px,transparent_1px)] [background-size:20px_20px] opacity-15"></div>
             <div class="max-w-7xl mx-auto relative z-10">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-400/20 text-sky-300 text-xs font-semibold mb-4">
-                    <i class="fa-solid fa-graduation-cap"></i> Tugas Mata Kuliah Audit Sistem Informasi
-                </div>
-                <h1 class="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white mb-4">
-                    Eksplorasi & Komparasi Kode Etik serta Standar Audit SI
-                </h1>
-                <p class="text-slate-300 text-lg max-w-3xl font-light mb-8 leading-relaxed">
-                    Studi perbandingan komprehensif antara pedoman nasional <span class="text-sky-400 font-semibold">Ikatan Audit Sistem Informasi Indonesia (IASII)</span> dan standar internasional <span class="text-emerald-400 font-semibold">Information Systems Audit and Control Association (ISACA)</span>.
-                </p>
-                
-                <!-- Student Metadata Badge -->
-                <div class="inline-flex flex-wrap items-center gap-4 p-4 rounded-xl bg-slate-800/80 border border-slate-700/80 text-sm">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-sky-600 flex items-center flex-shrink-0 justify-center font-bold text-white shadow-md">
-                            B
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                    <div class="space-y-4 max-w-3xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-400/20 text-sky-300 text-xs font-semibold">
+                            <i class="fa-solid fa-graduation-cap"></i> Tugas Audit Sistem Informasi • Karya Audio Visual Interaktif
                         </div>
-                        <div>
-                            <div class="font-bold text-white">Bakhri</div>
-                            <div class="text-xs text-slate-400">NIM: 3130023013</div>
+                        <h1 class="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight text-white">
+                            Eksplorasi & Komparasi <br class="hidden sm:inline">IASII vs ISACA
+                        </h1>
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-light">
+                            Platform Interaktif Studi Perbandingan Kode Etik & Standar Audit Sistem Informasi antara 
+                            <strong class="text-sky-300 font-semibold">IASII (Indonesia)</strong> dan 
+                            <strong class="text-emerald-300 font-semibold">ISACA (Global)</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Student Profile Card -->
+                    <div class="bg-slate-800/90 border border-slate-700/80 p-5 rounded-2xl space-y-3 min-w-[280px] shadow-lg backdrop-blur-md">
+                        <div class="text-xs uppercase tracking-wider text-slate-400 font-bold border-b border-slate-700 pb-2 flex items-center justify-between">
+                            <span>Penyusun Karya</span>
+                            <span class="text-emerald-400 font-mono text-[10px]">UNUSA 2026</span>
                         </div>
-                    </div>
-                    <div class="h-8 w-[1px] bg-slate-700 hidden sm:block"></div>
-                    <div>
-                        <div class="text-xs text-slate-400">Program Studi</div>
-                        <div class="font-medium text-slate-200">S1 Sistem Informasi</div>
-                    </div>
-                    <div class="h-8 w-[1px] bg-slate-700 hidden sm:block"></div>
-                    <div>
-                        <div class="text-xs text-slate-400">Institusi</div>
-                        <div class="font-medium text-slate-200">Universitas Nahdlatul Ulama Surabaya (UNUSA) • 2026</div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-sky-500 to-emerald-500 flex items-center justify-center font-bold text-white text-lg shadow">
+                                B
+                            </div>
+                            <div>
+                                <div class="font-bold text-white text-base">Bakhri</div>
+                                <div class="text-xs text-sky-300 font-mono">NIM: 3130023013</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-300 pt-1 space-y-1">
+                            <div><i class="fa-solid fa-university text-slate-400 mr-1.5"></i>S1 Sistem Informasi</div>
+                            <div><i class="fa-solid fa-building-columns text-slate-400 mr-1.5"></i>Fakultas Ekonomi, Bisnis & Tekno Digital</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-            
-            <!-- Executive Summary / Pendahuluan -->
-            <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-2 bg-slate-100 text-slate-700 rounded-lg">
-                        <i class="fa-solid fa-circle-info text-xl"></i>
+        <!-- Main Dashboard Container -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-14">
+
+            <section id="simulator" class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-sliders"></i> Fitur Interaktif #1
+                        </div>
+                        <h2 class="font-heading text-2xl font-bold text-slate-900">Simulator Penugasan Audit SI</h2>
+                        <p class="text-slate-500 text-xs sm:text-sm">Tentukan kriteria organisasi/teknologi untuk menemukan acuan standar (SASI vs ITAF) yang direkomendasikan secara dinamis.</p>
                     </div>
-                    <h2 class="font-heading text-2xl font-bold text-slate-900">Pendahuluan & Latar Belakang</h2>
-                </div>
-                <p class="text-slate-600 leading-relaxed text-base">
-                    Audit Sistem Informasi memerlukan acuan profesional yang jelas agar pelaksanaannya konsisten, dapat dipertanggungjawabkan, dan diakui secara luas. Acuan tersebut umumnya dituangkan dalam dua bentuk utama: 
-                    <span class="font-semibold text-slate-800">Kode Etik</span> (mengatur perilaku profesional auditor) dan 
-                    <span class="font-semibold text-slate-800">Standar Audit</span> (mengatur teknis pelaksanaan penugasan audit). Eksplorasi ini menganalisis hubungan harmonis serta komparasi struktural antara organisasi nasional (IASII) dan organisasi global (ISACA).
-                </p>
-            </section>
-
-            <!-- Profil Organisasi -->
-            <section id="profil" class="space-y-6">
-                <div class="border-b border-slate-200 pb-4">
-                    <h2 class="font-heading text-2xl font-bold text-slate-900 flex items-center gap-3">
-                        <i class="fa-solid fa-building-columns text-sky-600"></i> Profil Organisasi Profesi
-                    </h2>
-                    <p class="text-slate-500 text-sm mt-1">Latar belakang, jangkauan, dan acuan resmi dari masing-masing entitas</p>
                 </div>
 
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- IASII Card -->
-                    <div class="bg-white rounded-2xl border-t-4 border-t-sky-600 border-x border-b border-slate-200/80 shadow-sm p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+                <!-- Simulator Inputs & Output -->
+                <div class="grid lg:grid-cols-12 gap-8">
+                    <!-- Inputs Form -->
+                    <div class="lg:col-span-5 space-y-4 bg-slate-50 p-5 rounded-xl border border-slate-200">
                         <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">Organisasi Nasional</span>
-                                <span class="text-xs text-slate-500"><i class="fa-solid fa-calendar-days mr-1"></i> Berdiri 20 Mei 2004</span>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">1. Skala & Cakupan Entitas</label>
+                            <select id="sim-scope" onchange="runAuditSimulator()" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <option value="national_gov">Lembaga Pemerintah / BUMN Indonesia</option>
+                                <option value="national_private">Perusahaan Swasta Nasional (Indonesia)</option>
+                                <option value="multinational">Perusahaan Multinasional / Cabang Global</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">2. Fokus Utama Audit / Teknologi</label>
+                            <select id="sim-tech" onchange="runAuditSimulator()" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <option value="general_compliance">Kepatuhan SI Umum & Pengendalian Internal</option>
+                                <option value="ai_analytics">Tata Kelola AI, Big Data & Agile (Modern)</option>
+                                <option value="cobit_governance">Tata Kelola Enterprise TI Kompleks (COBIT)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">3. Kualifikasi Auditor</label>
+                            <select id="sim-cert" onchange="runAuditSimulator()" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <option value="skkni">Standar Kompetensi Nasional (SKKNI Kemkominfo)</option>
+                                <option value="cisa">Sertifikasi Internasional (CISA / CISM / CRISC)</option>
+                                <option value="both">Kombinasi Nasional & Global</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Dynamic Output -->
+                    <div class="lg:col-span-7 bg-slate-900 text-white p-6 rounded-xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                                <span class="text-xs font-mono uppercase tracking-wider text-sky-400 font-bold"><i class="fa-solid fa-microchip mr-1.5"></i> Hasil Analisis Simulator</span>
+                                <span id="sim-badge" class="px-2.5 py-0.5 rounded text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30">IASII Domestik</span>
                             </div>
-                            <h3 class="font-heading text-2xl font-bold text-slate-900 mb-2">IASII</h3>
-                            <p class="text-xs text-slate-500 font-medium mb-4">Ikatan Audit Sistem Informasi Indonesia (iasii.or.id)</p>
-                            <p class="text-slate-600 text-sm leading-relaxed mb-6">
-                                Didirikan di Jakarta oleh Tim Persiapan Pembentukan IASII (TPP-IASII) atas kesadaran pentingnya audit atas penyelenggaraan sistem informasi seiring pesatnya pemanfaatan TI di Indonesia. Fokus utamanya adalah pemeriksaan, pengendalian, dan pengamanan SI berskala nasional.
+
+                            <h3 id="sim-title" class="font-heading text-xl font-bold text-white mb-2">Rekomendasi Utama: SASI (IASII) + SKKNI</h3>
+                            <p id="sim-desc" class="text-slate-300 text-sm leading-relaxed mb-4">
+                                Untuk penugasan audit pada entitas nasional, acuan utama menggunakan SASI (7 Kelompok Standar Linear) dengan kepatuhan Kode Etik IASII berbasis Pancasila.
                             </p>
-                            <div class="space-y-2 mb-6">
-                                <div class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Dokumen Acuan Resmi:</div>
-                                <ul class="text-sm text-slate-600 space-y-1.5">
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-sky-600 text-xs"></i> AD/ART Organisasi</li>
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-sky-600 text-xs"></i> Kode Etik IASII</li>
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-sky-600 text-xs"></i> SASI (Standar Audit Sistem Informasi)</li>
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-sky-600 text-xs"></i> PASI (Pedoman Audit Sistem Informasi)</li>
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-sky-600 text-xs"></i> SKKNI & Standar Kompetensi Auditor TI</li>
-                                </ul>
+
+                            <div class="space-y-2 text-xs text-slate-300">
+                                <div class="font-bold uppercase tracking-wider text-slate-400 mb-1">Checklist Langkah Penugasan:</div>
+                                <div id="sim-checklist" class="space-y-1.5 font-mono">
+                                    <!-- Dynamic Checklist items injected by JS -->
+                                </div>
                             </div>
                         </div>
-                        <a href="https://iasii.or.id/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 w-full py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-700 font-semibold text-sm rounded-xl transition-colors border border-sky-200">
-                            Kunjungi Situs Resmi <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                        </a>
+
+                        <div id="sim-note" class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 italic">
+                            *Catatan Sintesis: Untuk penugasan kompleks, gabungkan SASI untuk konteks regulasi lokal dan ITAF untuk praktik terbaik tata kelola global.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="visual-comparison" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-eye"></i> Fitur Interaktif #2
+                        </div>
+                        <h2 class="font-heading text-2xl font-bold text-slate-900">Visualisasi & Diagram Switcher</h2>
+                        <p class="text-slate-500 text-xs sm:text-sm">Ubah mode tampilan antara Poster Infografis, Kartu Sisi-ke-Sisi, dan Diagram Venn Persamaan/Perbedaan.</p>
+                    </div>
+
+                    <!-- Switcher Controls -->
+                    <div class="inline-flex p-1 bg-slate-200/80 rounded-xl text-xs font-semibold self-start sm:self-auto">
+                        <button id="view-btn-cards" onclick="switchVisualView('cards')" class="px-3.5 py-2 rounded-lg bg-white text-slate-900 shadow-sm transition-all">
+                            <i class="fa-solid fa-table-cells-large mr-1.5"></i> Side-by-Side
+                        </button>
+                        <button id="view-btn-venn" onclick="switchVisualView('venn')" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+                            <i class="fa-solid fa-circle-nodes mr-1.5"></i> Diagram Venn
+                        </button>
+                        <button id="view-btn-chart" onclick="switchVisualView('chart')" class="px-3.5 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+                            <i class="fa-solid fa-chart-radar mr-1.5"></i> Radar Grafik
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 1: Side-by-Side Cards (Default) -->
+                <div id="view-cards-container" class="grid lg:grid-cols-2 gap-8">
+                    <!-- IASII Card -->
+                    <div class="bg-white rounded-2xl border-t-4 border-t-sky-600 border-x border-b border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">
+                                <i class="fa-solid fa-flag mr-1"></i> Organisasi Nasional
+                            </span>
+                            <span class="text-xs text-slate-500 font-mono"><i class="fa-solid fa-calendar mr-1"></i>20 Mei 2004</span>
+                        </div>
+
+                        <div>
+                            <h3 class="font-heading text-2xl font-bold text-slate-900">IASII</h3>
+                            <p class="text-xs text-slate-500 font-medium">Ikatan Audit Sistem Informasi Indonesia (iasii.or.id)</p>
+                        </div>
+
+                        <!-- Interactive Code of Ethics Accordion/List -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                                <span>Kode Etik IASII (7 Butir Utama)</span>
+                                <span class="text-[10px] text-sky-600 font-normal">*Klik untuk detail implikasi</span>
+                            </h4>
+                            <div class="space-y-2 text-xs">
+                                <div onclick="toggleItemDetail('iasii-e1')" class="p-3 bg-sky-50/60 hover:bg-sky-100/80 rounded-xl border border-sky-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-sky-900 flex justify-between items-center">
+                                        <span>1. Pancasila & Ketakwaan Tuhan YME</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-sky-600"></i>
+                                    </div>
+                                    <div id="iasii-e1" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-sky-200/50 pt-2">
+                                        Auditor SI di Indonesia menjadikan Pancasila sebagai landasan filosofis moralitas dan etika profesi dalam bertindak.
+                                    </div>
+                                </div>
+
+                                <div onclick="toggleItemDetail('iasii-e2')" class="p-3 bg-sky-50/60 hover:bg-sky-100/80 rounded-xl border border-sky-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-sky-900 flex justify-between items-center">
+                                        <span>2. Keluhuran Budi & Integritas Terpuji</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-sky-600"></i>
+                                    </div>
+                                    <div id="iasii-e2" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-sky-200/50 pt-2">
+                                        Mengutamakan prinsip-prinsip kejujuran, keteladanan moral, dan tata kelola yang baik (Good Governance).
+                                    </div>
+                                </div>
+
+                                <div onclick="toggleItemDetail('iasii-e3')" class="p-3 bg-sky-50/60 hover:bg-sky-100/80 rounded-xl border border-sky-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-sky-900 flex justify-between items-center">
+                                        <span>3. Mengutamakan Kepentingan Komunitas</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-sky-600"></i>
+                                    </div>
+                                    <div id="iasii-e3" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-sky-200/50 pt-2">
+                                        Mendahulukan kepentingan publik, asosiasi, dan bangsa di atas kepentingan komersial pribadi.
+                                    </div>
+                                </div>
+
+                                <div onclick="toggleItemDetail('iasii-e4')" class="p-3 bg-sky-50/60 hover:bg-sky-100/80 rounded-xl border border-sky-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-sky-900 flex justify-between items-center">
+                                        <span>4. Pembelajaran & Berbagi Keilmuan</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-sky-600"></i>
+                                    </div>
+                                    <div id="iasii-e4" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-sky-200/50 pt-2">
+                                        Terus meningkatkan kompetensi pengetahuan dan aktif berkontribusi mendidik sesama anggota komunitas.
+                                    </div>
+                                </div>
+
+                                <div onclick="toggleItemDetail('iasii-e5')" class="p-3 bg-sky-50/60 hover:bg-sky-100/80 rounded-xl border border-sky-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-sky-900 flex justify-between items-center">
+                                        <span>5. Reputasi Bermartabat & Independensi</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-sky-600"></i>
+                                    </div>
+                                    <div id="iasii-e5" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-sky-200/50 pt-2">
+                                        Menjaga nama baik profesi serta mempertahankan kemandirian dari tekanan pihak luar.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SASI Standard 7 Linear Steps -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Standar Audit (SASI - 7 Kelompok Linear)</h4>
+                            <div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px]">
+                                <div class="bg-sky-100 text-sky-800 p-2 rounded font-bold" title="Penugasan Audit">S-1</div>
+                                <div class="bg-sky-100 text-sky-800 p-2 rounded font-bold" title="Independensi">S-2</div>
+                                <div class="bg-sky-100 text-sky-800 p-2 rounded font-bold" title="Kompetensi">S-3</div>
+                                <div class="bg-sky-100 text-sky-800 p-2 rounded font-bold" title="Perencanaan">S-4</div>
+                                <div class="bg-sky-100 text-sky-800 p-2 rounded font-bold" title="Pelaksanaan">S-5</div>
+                                <div class="bg-sky-100 text-sky-800 p-2 rounded font-bold" title="Pelaporan">S-6</div>
+                                <div class="bg-sky-100 text-sky-800 p-2 rounded font-bold" title="Tindak Lanjut">S-7</div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- ISACA Card -->
-                    <div class="bg-white rounded-2xl border-t-4 border-t-emerald-600 border-x border-b border-slate-200/80 shadow-sm p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div class="bg-white rounded-2xl border-t-4 border-t-emerald-600 border-x border-b border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                                <i class="fa-solid fa-globe mr-1"></i> Asosiasi Global
+                            </span>
+                            <span class="text-xs text-slate-500 font-mono"><i class="fa-solid fa-calendar mr-1"></i>1969</span>
+                        </div>
+
                         <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Asosiasi Global</span>
-                                <span class="text-xs text-slate-500"><i class="fa-solid fa-calendar-days mr-1"></i> Berdiri 1969</span>
-                            </div>
-                            <h3 class="font-heading text-2xl font-bold text-slate-900 mb-2">ISACA</h3>
-                            <p class="text-xs text-slate-500 font-medium mb-4">Information Systems Audit and Control Association (isaca.org)</p>
-                            <p class="text-slate-600 text-sm leading-relaxed mb-6">
-                                Berawal dari EDP Auditors Association (1969), berkembang menjadi organisasi profesional internasional dengan lebih dari 115.000 anggota di 180+ negara. Menaungi tata kelola, audit, pengendalian, keamanan, risiko, dan privasi TI.
-                            </p>
-                            <div class="space-y-2 mb-6">
-                                <div class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Dokumen Acuan Resmi:</div>
-                                ul class="text-sm text-slate-600 space-y-1.5">
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Code of Professional Ethics</li>
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> ITAF (IT Audit Framework) Ed. 5 (2026)</li>
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> COBIT Framework</li>
-                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-600 text-xs"></i> Sertifikasi Global (CISA, CISM, CGEIT, CRISC)</li>
-                                </ul>
+                            <h3 class="font-heading text-2xl font-bold text-slate-900">ISACA</h3>
+                            <p class="text-xs text-slate-500 font-medium">Information Systems Audit and Control Association (isaca.org)</p>
+                        </div>
+
+                        <!-- Interactive Code of Ethics Accordion/List -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                                <span>Code of Ethics ISACA (8 Butir Utama)</span>
+                                <span class="text-[10px] text-emerald-600 font-normal">*Klik untuk detail implikasi</span>
+                            </h4>
+                            <div class="space-y-2 text-xs">
+                                <div onclick="toggleItemDetail('isaca-e1')" class="p-3 bg-emerald-50/60 hover:bg-emerald-100/80 rounded-xl border border-emerald-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-emerald-900 flex justify-between items-center">
+                                        <span>1. Kepatuhan Standar Tata Kelola TI</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-emerald-600"></i>
+                                    </div>
+                                    <div id="isaca-e1" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-emerald-200/50 pt-2">
+                                        Mendukung dan mendorong kepatuhan terhadap kerangka kerja tata kelola TI perusahaan (seperti COBIT).
+                                    </div>
+                                </div>
+
+                                <div onclick="toggleItemDetail('isaca-e2')" class="p-3 bg-emerald-50/60 hover:bg-emerald-100/80 rounded-xl border border-emerald-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-emerald-900 flex justify-between items-center">
+                                        <span>2. Kerahasiaan Data & Privasi Informasi</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-emerald-600"></i>
+                                    </div>
+                                    <div id="isaca-e2" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-emerald-200/50 pt-2">
+                                        Secara ketat menjaga privasi dan kerahasiaan data yang diperoleh selama tugas penugasan audit.
+                                    </div>
+                                </div>
+
+                                <div onclick="toggleItemDetail('isaca-e3')" class="p-3 bg-emerald-50/60 hover:bg-emerald-100/80 rounded-xl border border-emerald-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-emerald-900 flex justify-between items-center">
+                                        <span>3. Due Professional Care & Keahlian</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-emerald-600"></i>
+                                    </div>
+                                    <div id="isaca-e3" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-emerald-200/50 pt-2">
+                                        Melaksanakan pemeriksaan dengan kecermatan profesional dan terus mempertahankan sertifikasi (CPE).
+                                    </div>
+                                </div>
+
+                                <div onclick="toggleItemDetail('isaca-e4')" class="p-3 bg-emerald-50/60 hover:bg-emerald-100/80 rounded-xl border border-emerald-200/80 cursor-pointer transition-colors">
+                                    <div class="font-bold text-emerald-900 flex justify-between items-center">
+                                        <span>4. Pelaporan Temuan Secara Objektif & Jujur</span>
+                                        <i class="fa-solid fa-chevron-down text-[10px] text-emerald-600"></i>
+                                    </div>
+                                    <div id="isaca-e4" class="hidden mt-2 text-slate-600 text-[11px] leading-relaxed border-t border-emerald-200/50 pt-2">
+                                        Mengungkapkan seluruh fakta material dan temuan tanpa bias atau persembunyian bukti.
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <a href="https://www.isaca.org/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-sm rounded-xl transition-colors border border-emerald-200">
-                            Kunjungi Situs Resmi <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                        </a>
+
+                        <!-- ITAF Standard Categories -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Standar Audit (ITAF Edisi ke-5 2026)</h4>
+                            <div class="grid grid-cols-3 gap-2 text-center font-mono text-[10px]">
+                                <div class="bg-emerald-100 text-emerald-800 p-2 rounded font-bold">1000 General</div>
+                                <div class="bg-emerald-100 text-emerald-800 p-2 rounded font-bold">1200 Performance</div>
+                                <div class="bg-emerald-100 text-emerald-800 p-2 rounded font-bold">1400 Reporting</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: Interactive Venn Diagram Container (Hidden by Default) -->
+                <div id="view-venn-container" class="hidden bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                    <div class="text-center max-w-xl mx-auto space-y-1">
+                        <h3 class="font-heading font-bold text-xl text-slate-900">Diagram Venn: Persamaan & Perbedaan Utama</h3>
+                        <p class="text-xs text-slate-500">Visualisasi area irisan (persamaan) dan karakteristik unik IASII vs ISACA.</p>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-4 text-xs">
+                        <!-- Left Unique: IASII -->
+                        <div class="bg-sky-50/80 p-5 rounded-2xl border border-sky-200 space-y-3">
+                            <div class="font-bold text-sky-900 text-sm flex items-center gap-2 border-b border-sky-200 pb-2">
+                                <i class="fa-solid fa-flag text-sky-600"></i> Unik IASII (Nasional)
+                            </div>
+                            <ul class="space-y-2 text-slate-700 list-disc list-inside">
+                                <li>Berorientasi nilai Pancasila & Keharmonisan Sosial.</li>
+                                <li>Standar SASI tersusun 7 kelompok linear mengikuti tahapan audit.</li>
+                                <li>Terintegrasi dengan SKKNI Kominfo & Standar Kompetensi Nasional.</li>
+                                <li>Kode Etik menonjolkan semangat kebersamaan komunitas.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Center Intersection: Common Traits -->
+                        <div class="bg-amber-50/80 p-5 rounded-2xl border border-amber-200 space-y-3">
+                            <div class="font-bold text-amber-900 text-sm flex items-center gap-2 border-b border-amber-200 pb-2">
+                                <i class="fa-solid fa-handshake text-amber-600"></i> Area Irisan (Persamaan)
+                            </div>
+                            <ul class="space-y-2 text-slate-700 list-disc list-inside">
+                                <li>Sama-sama mengatur Kode Etik & Standar Teknis Audit SI.</li>
+                                <li>Menegaskan kewajiban Independensi & Objektivitas.</li>
+                                <li>Mewajibkan Pengembangan Profesional Berkelanjutan.</li>
+                                <li>Mencakup alur Perencanaan, Pelaksanaan, hingga Pelaporan.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Right Unique: ISACA -->
+                        <div class="bg-emerald-50/80 p-5 rounded-2xl border border-emerald-200 space-y-3">
+                            <div class="font-bold text-emerald-900 text-sm flex items-center gap-2 border-b border-emerald-200 pb-2">
+                                <i class="fa-solid fa-globe text-emerald-600"></i> Unik ISACA (Global)
+                            </div>
+                            <ul class="space-y-2 text-slate-700 list-disc list-inside">
+                                <li>Cakupan global (115.000+ anggota, 180+ negara).</li>
+                                <li>Standar ITAF 3 kategori berjenjang (1000, 1200, 1400).</li>
+                                <li>Pembaruan dinamis (ITAF 5th Ed 2026: AI, Agile, Data Analytics).</li>
+                                <li>Sertifikasi profesional diakui internasional (CISA/CISM/COBIT).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: Interactive Chart Radar View (Hidden by Default) -->
+                <div id="view-chart-container" class="hidden bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+                    <div class="text-center max-w-xl mx-auto space-y-1">
+                        <h3 class="font-heading font-bold text-xl text-slate-900">Radar Perbandingan Proporsi Fokus</h3>
+                        <p class="text-xs text-slate-500">Visualisasi dimensi kekuatan dan fokus masing-masing organisasi profesi.</p>
+                    </div>
+
+                    <div class="max-w-md mx-auto aspect-square">
+                        <canvas id="comparisonRadarChart"></canvas>
                     </div>
                 </div>
             </section>
 
-            <!-- Kode Etik Komparasi -->
-            <section id="kode-etik" class="space-y-6">
-                <div class="border-b border-slate-200 pb-4">
-                    <h2 class="font-heading text-2xl font-bold text-slate-900 flex items-center gap-3">
-                        <i class="fa-solid fa-scale-balanced text-amber-600"></i> Komparasi Kode Etik Praktisi
-                    </h2>
-                    <p class="text-slate-500 text-sm mt-1">Perbandingan 7 Butir Pernyataan IASII vs 8 Butir Kewajiban ISACA</p>
-                </div>
-
-                <div class="grid lg:grid-cols-2 gap-8">
-                    <!-- Kode Etik IASII -->
-                    <div class="bg-slate-900 text-slate-100 rounded-2xl p-6 sm:p-8 shadow-md relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-8 opacity-10 text-sky-400">
-                            <i class="fa-solid fa-flag text-9xl"></i>
+            <section id="matrix" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-magnifying-glass"></i> Fitur Interaktif #3
                         </div>
-                        <div class="relative z-10">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                                <h3 class="text-xl font-bold font-heading text-sky-400">Kode Etik IASII</h3>
-                                <span class="text-xs bg-sky-900/60 text-sky-300 border border-sky-700/50 px-2.5 py-1 rounded-md">7 Butir Pernyataan</span>
-                            </div>
-                            <p class="text-slate-300 text-sm mb-6 italic">
-                                Menekankan jati diri & kepribadian "Insan Audit Sistem Informasi Indonesia" berbasis nilai kebangsaan dan kebersamaan komunitas.
-                            </p>
-                            <div class="space-y-3 text-sm">
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">1</span>
-                                    <span>Berjiwa Pancasila dan bertaqwa kepada Tuhan Yang Maha Esa.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">2</span>
-                                    <span>Mengutamakan keluhuran budi, integritas terpuji, dan tata kelola yang baik.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">3</span>
-                                    <span>Mendahulukan kepentingan organisasi/komunitas di atas kepentingan pribadi.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">4</span>
-                                    <span>Terus belajar, meningkatkan pemahaman, dan aktif berbagi pengalaman.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">5</span>
-                                    <span>Membangun reputasi profesional yang bermartabat tinggi.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">6</span>
-                                    <span>Mengutamakan kemandirian (independensi) & menghindari ketergantungan luar.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">7</span>
-                                    <span>Santun, demokratis, dan berbaik sangka dalam menyampaikan pendapat.</span>
-                                </div>
-                            </div>
-                        </div>
+                        <h2 class="font-heading text-2xl font-bold text-slate-900">Matriks Komparasi Pencarian Real-Time</h2>
+                        <p class="text-slate-500 text-xs sm:text-sm">Filter dan cari aspek spesifik seperti "Pancasila", "ITAF", "AI", "SKKNI", atau "Independensi".</p>
                     </div>
 
-                    <!-- Kode Etik ISACA -->
-                    <div class="bg-slate-900 text-slate-100 rounded-2xl p-6 sm:p-8 shadow-md relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-8 opacity-10 text-emerald-400">
-                            <i class="fa-solid fa-globe text-9xl"></i>
-                        </div>
-                        <div class="relative z-10">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-                                <h3 class="text-xl font-bold font-heading text-emerald-400">Code of Professional Ethics ISACA</h3>
-                                <span class="text-xs bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 px-2.5 py-1 rounded-md">8 Butir Kewajiban</span>
-                            </div>
-                            <p class="text-slate-300 text-sm mb-6 italic">
-                                Berfokus pada akuntabilitas, kerahasiaan data, integritas tugas, dan tata kelola korporat yang bersifat universal global.
-                            </p>
-                            <div class="space-y-3 text-sm">
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">1</span>
-                                    <span>Mendukung pelaksanaan standar tata kelola dan pengendalian sistem informasi.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">2</span>
-                                    <span>Melayani stakeholder secara sah, jujur, serta menjaga integritas profesi.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">3</span>
-                                    <span>Menjaga privasi & kerahasiaan informasi yang diperoleh selama penugasan.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">4</span>
-                                    <span>Menjaga kompetensi profesional melalui pendidikan berkelanjutan (CPE).</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">5</span>
-                                    <span>Melaksanakan tugas dengan kecermatan profesional (due professional care).</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">6</span>
-                                    <span>Menginformasikan hasil kerja secara jujur & mengungkapkan fakta signifikan.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">7</span>
-                                    <span>Mendukung edukasi profesional bagi para pemangku kepentingan.</span>
-                                </div>
-                                <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-start gap-3">
-                                    <span class="bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded text-xs mt-0.5">8</span>
-                                    <span>Menghindari tindakan yang dapat mencemarkan nama baik profesi atau asosiasi.</span>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Live Search Box -->
+                    <div class="relative min-w-[260px]">
+                        <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="table-search" onkeyup="filterComparisonTable()" placeholder="Cari kata kunci..." class="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-4 py-2 text-xs focus:ring-2 focus:ring-purple-500 focus:outline-none">
                     </div>
                 </div>
-            </section>
 
-            <!-- Standar Audit SI -->
-            <section id="standar-audit" class="space-y-6">
-                <div class="border-b border-slate-200 pb-4">
-                    <h2 class="font-heading text-2xl font-bold text-slate-900 flex items-center gap-3">
-                        <i class="fa-solid fa-list-check text-indigo-600"></i> Standar Audit Sistem Informasi
-                    </h2>
-                    <p class="text-slate-500 text-sm mt-1">Struktur kerangka kerja SASI (IASII) vs ITAF (ISACA)</p>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- SASI (IASII) -->
-                    <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm relative">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold">
-                                SASI
-                            </div>
-                            <div>
-                                <h3 class="font-heading font-bold text-lg text-slate-900">SASI - Standar Audit SI</h3>
-                                <p class="text-xs text-slate-500">IASII (Diresmikan 2006 / Efektif 2007)</p>
-                            </div>
-                        </div>
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-                            Disusun secara <span class="font-semibold text-slate-800">linear dalam 7 kelompok standar</span> yang mengikuti alur kronologis tahapan penugasan audit dari awal hingga selesai.
-                        </p>
-
-                        <div class="relative border-l-2 border-sky-200 ml-3 space-y-4 pl-4 text-sm">
-                            <div class="relative">
-                                <span class="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-sky-500"></span>
-                                <span class="font-bold text-slate-800">S-1 Penugasan Audit</span>
-                                <p class="text-xs text-slate-500">Tanggung jawab, wewenang, dan batasan penugasan.</p>
-                            </div>
-                            <div class="relative">
-                                <span class="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-sky-500"></span>
-                                <span class="font-bold text-slate-800">S-2 Independensi & Objektivitas</span>
-                                <p class="text-xs text-slate-500">Sikap mental bebas dari intervensi pihak luar.</p>
-                            </div>
-                            <div class="relative">
-                                <span class="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-sky-500"></span>
-                                <span class="font-bold text-slate-800">S-3 Profesionalisme & Kompetensi</span>
-                                <p class="text-xs text-slate-500">Keahlian teknis dan kehati-hatian profesional.</p>
-                            </div>
-                            <div class="relative">
-                                <span class="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-sky-500"></span>
-                                <span class="font-bold text-slate-800">S-4 Perencanaan</span>
-                                <p class="text-xs text-slate-500">Strategi audit, pemahaman proses bisnis, & penilaian risiko.</p>
-                            </div>
-                            <div class="relative">
-                                <span class="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-sky-500"></span>
-                                <span class="font-bold text-slate-800">S-5 Pelaksanaan</span>
-                                <p class="text-xs text-slate-500">Supervisi, pengumpulan bukti audit, & penyusunan kertas kerja.</p>
-                            </div>
-                            <div class="relative">
-                                <span class="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-sky-500"></span>
-                                <span class="font-bold text-slate-800">S-6 Pelaporan</span>
-                                <p class="text-xs text-slate-500">Penyampaian hasil pemeriksaan, temuan, dan rekomendasi.</p>
-                            </div>
-                            <div class="relative">
-                                <span class="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-sky-500"></span>
-                                <span class="font-bold text-slate-800">S-7 Tindak Lanjut</span>
-                                <p class="text-xs text-slate-500">Pemantauan implementasi rekomendasi oleh auditee.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ITAF (ISACA) -->
-                    <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm relative">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                                ITAF
-                            </div>
-                            <div>
-                                <h3 class="font-heading font-bold text-lg text-slate-900">ITAF - IT Audit Framework</h3>
-                                <p class="text-xs text-slate-500">ISACA (Kini Edisi ke-5, 2026)</p>
-                            </div>
-                        </div>
-                        <p class="text-sm text-slate-600 mb-6 leading-relaxed">
-                            Disusun secara <span class="font-semibold text-slate-800">berjenjang dalam 3 kategori standar</span> yang terus diperbarui mengikuti perkembangan teknologi terkini (AI, Agile, Data Analytics).
-                        </p>
-
-                        <div class="space-y-4 text-sm">
-                            <div class="p-4 rounded-xl bg-emerald-50/50 border border-emerald-100">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="font-bold text-emerald-900">1000-series: Standar Umum (General)</span>
-                                    <span class="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded">Mandatori</span>
-                                </div>
-                                <p class="text-xs text-slate-600">
-                                    Prinsip dasar profesi meliputi Piagam Audit, Independensi, Objektivitas, Etika, Due Care, dan Kompetensi.
-                                </p>
-                            </div>
-
-                            <div class="p-4 rounded-xl bg-emerald-50/50 border border-emerald-100">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="font-bold text-emerald-900">1200-series: Standar Pelaksanaan (Performance)</span>
-                                    <span class="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded">Teknis</span>
-                                </div>
-                                <p class="text-xs text-slate-600">
-                                    Metodologi kerja mencakup Perencanaan Audit, Penilaian Risiko, Pelaksanaan Audit, Bukti Audit, & Supervisi.
-                                </p>
-                            </div>
-
-                            <div class="p-4 rounded-xl bg-emerald-50/50 border border-emerald-100">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="font-bold text-emerald-900">1400-series: Standar Pelaporan (Reporting)</span>
-                                    <span class="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded">Output</span>
-                                </div>
-                                <p class="text-xs text-slate-600">
-                                    Format laporan, Pengungkapan Opini/Temuan, Komunikasi Rekomendasi, dan Aktivitas Pemantauan Tindak Lanjut.
-                                </p>
-                            </div>
-
-                            <div class="p-3 bg-slate-100 rounded-lg text-xs text-slate-600">
-                                <i class="fa-solid fa-arrows-rotate text-emerald-600 mr-1"></i> <span class="font-semibold">Update Terkini (Ed. 5):</span> Mengakomodasi audit analitik data modern, metode pengembangan Agile, dan tata kelola Kecerdasan Buatan (AI).
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Matriks Komparasi Detail (Tabel) -->
-            <section id="komparasi-matriks" class="space-y-6">
-                <div class="border-b border-slate-200 pb-4">
-                    <h2 class="font-heading text-2xl font-bold text-slate-900 flex items-center gap-3">
-                        <i class="fa-solid fa-table-columns text-purple-600"></i> Tabel Komparasi Langsung
-                    </h2>
-                    <p class="text-slate-500 text-sm mt-1">Perbandingan multidimensi antara IASII dan ISACA</p>
-                </div>
-
+                <!-- Comparison Table -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse text-sm">
+                        <table class="w-full text-left border-collapse text-xs sm:text-sm">
                             <thead>
                                 <tr class="bg-slate-900 text-white font-heading">
-                                    <th class="py-4 px-6 font-semibold w-1/4">Dimensi Evaluasi</th>
-                                    <th class="py-4 px-6 font-semibold w-3/8 border-l border-slate-800 bg-sky-950/40 text-sky-300">
-                                        <i class="fa-solid fa-flag mr-2"></i>IASII (Indonesia)
+                                    <th class="py-3.5 px-5 font-semibold w-1/4">Dimensi Evaluasi</th>
+                                    <th class="py-3.5 px-5 font-semibold w-3/8 bg-sky-950/60 text-sky-300 border-l border-slate-800">
+                                        <i class="fa-solid fa-flag mr-1.5"></i>IASII (Indonesia)
                                     </th>
-                                    <th class="py-4 px-6 font-semibold w-3/8 border-l border-slate-800 bg-emerald-950/40 text-emerald-300">
-                                        <i class="fa-solid fa-globe mr-2"></i>ISACA (Global)
+                                    <th class="py-3.5 px-5 font-semibold w-3/8 bg-emerald-950/60 text-emerald-300 border-l border-slate-800">
+                                        <i class="fa-solid fa-globe mr-1.5"></i>ISACA (Global)
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-200 text-slate-700">
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-900 bg-slate-50">Tahun & Tempat Berdiri</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">20 Mei 2004, Jakarta, Indonesia</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">1969, AS (Sebagai EDP Auditors Association)</td>
+                            <tbody id="matrix-tbody" class="divide-y divide-slate-200 text-slate-700">
+                                <tr class="matrix-row hover:bg-slate-50 transition-colors">
+                                    <td class="py-3.5 px-5 font-bold text-slate-900 bg-slate-50">Tahun & Tempat Berdiri</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">20 Mei 2004, Jakarta, Indonesia</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">1969, AS (Sebagai EDP Auditors Association)</td>
                                 </tr>
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-900 bg-slate-50">Cakupan Keanggotaan</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">Skala Nasional (Praktisi SI di Indonesia)</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">Skala Global (115.000+ anggota di 180+ negara)</td>
+                                <tr class="matrix-row hover:bg-slate-50 transition-colors">
+                                    <td class="py-3.5 px-5 font-bold text-slate-900 bg-slate-50">Cakupan Keanggotaan</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">Skala Nasional (Praktisi SI Indonesia)</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">Skala Global (115.000+ anggota di 180+ negara)</td>
                                 </tr>
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-900 bg-slate-50">Fokus Utama Organisasi</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">Pemeriksaan, pengendalian, dan pengamanan sistem informasi di Indonesia</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">Tata kelola, audit, kontrol, keamanan, risiko, dan privasi TI secara luas</td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-900 bg-slate-50">Landasan Nilai Kode Etik</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">
-                                        <span class="inline-block px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-medium text-xs mb-1">Berjiwa Pancasila</span><br>
-                                        Memuat ketakwaan, keluhuran budi, dan semangat kekeluargaan/kebersamaan.
+                                <tr class="matrix-row hover:bg-slate-50 transition-colors">
+                                    <td class="py-3.5 px-5 font-bold text-slate-900 bg-slate-50">Landasan Nilai Kode Etik</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">
+                                        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 font-bold text-[11px] inline-block mb-1">Pancasila & Ketakwaan</span><br>
+                                        Memuat kebersamaan komunitas, moralitas kebangsaan, dan keluhuran budi.
                                     </td>
-                                    <td class="py-4 px-6 border-l border-slate-200">
-                                        <span class="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium text-xs mb-1">Prinsip Universal</span><br>
-                                        Berbasis tata kelola korporat, akuntabilitas publik, dan kepatuhan profesional.
+                                    <td class="py-3.5 px-5 border-l border-slate-200">
+                                        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[11px] inline-block mb-1">Prinsip Universal</span><br>
+                                        Berbasis tata kelola korporat, kerahasiaan data, dan akuntabilitas publik.
                                     </td>
                                 </tr>
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-900 bg-slate-50">Pengaturan Kerahasiaan Data</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">Tidak diatur secara eksplisit dalam 7 butir kode etik utama (diatur dalam pedoman operasional).</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">Ditegaskan eksplisit pada Butir 3 Kode Etik (menjaga privasi & kerahasiaan data).</td>
-                                </tr>
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-900 bg-slate-50">Struktur Standar Audit</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">
-                                        <span class="font-semibold text-slate-900">SASI: 7 Kelompok Linear</span><br>
-                                        Mengikuti tahapan siklus audit dari penugasan hingga tindak lanjut.
+                                <tr class="matrix-row hover:bg-slate-50 transition-colors">
+                                    <td class="py-3.5 px-5 font-bold text-slate-900 bg-slate-50">Struktur Standar Audit</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">
+                                        <span class="font-bold text-slate-900">SASI: 7 Kelompok Linear</span> (S-1 s/d S-7) mengikuti alur penugasan audit dari awal hingga selesai.
                                     </td>
-                                    <td class="py-4 px-6 border-l border-slate-200">
-                                        <span class="font-semibold text-slate-900">ITAF: 3 Kategori Berjenjang</span><br>
-                                        1000 General, 1200 Performance, 1400 Reporting (diperbarui berkala).
+                                    <td class="py-3.5 px-5 border-l border-slate-200">
+                                        <span class="font-bold text-slate-900">ITAF: 3 Kategori Berjenjang</span> (1000 Standar Umum, 1200 Pelaksanaan, 1400 Pelaporan).
                                     </td>
                                 </tr>
-                                <tr class="hover:bg-slate-50/80 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-900 bg-slate-50">Ekosistem & Sertifikasi Pendukung</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">PASI, SKKNI Auditor Teknologi Informasi, Standar Kompetensi Auditor TI Kominfo.</td>
-                                    <td class="py-4 px-6 border-l border-slate-200">Sertifikasi Global (CISA, CISM, CGEIT), COBIT Framework, IT Audit Guidelines.</td>
+                                <tr class="matrix-row hover:bg-slate-50 transition-colors">
+                                    <td class="py-3.5 px-5 font-bold text-slate-900 bg-slate-50">Kesiapan Tren Modern (AI/Agile)</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">Diatur melalui pembaruan Pedoman (PASI) & Standar Kompetensi Nasional Kominfo.</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">Secara eksplisit diakomodasi dalam ITAF Edisi ke-5 (2026) mencakup Audit AI Governance & Agile.</td>
+                                </tr>
+                                <tr class="matrix-row hover:bg-slate-50 transition-colors">
+                                    <td class="py-3.5 px-5 font-bold text-slate-900 bg-slate-50">Ekosistem Pendukung</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">PASI, SKKNI Auditor Teknologi Informasi Kemkominfo.</td>
+                                    <td class="py-3.5 px-5 border-l border-slate-200">Sertifikasi Global (CISA, CISM, CRISC) & COBIT Framework.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -513,186 +565,434 @@
                 </div>
             </section>
 
-            <!-- Embedded Visual Infographic Artwork Section -->
-            <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 border-b border-slate-700/80 pb-6">
+            <section id="quiz" class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/80 pb-4 mb-6">
                     <div>
-                        <div class="inline-flex items-center gap-2 text-xs font-semibold text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20 mb-2">
-                            <i class="fa-solid fa-palette"></i> Karya Visual Terintegrasi
+                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-gamepad"></i> Fitur Interaktif #4
                         </div>
-                        <h2 class="font-heading text-2xl sm:text-3xl font-bold">Infografis Komparasi IASII vs ISACA</h2>
-                        <p class="text-slate-400 text-sm mt-1">Visualisasi grafis tingkat tinggi merangkum persandingan kedua organisasi</p>
+                        <h2 class="font-heading text-2xl font-bold">Kuis Self-Assessment Audit SI</h2>
+                        <p class="text-slate-400 text-xs sm:text-sm">Uji pemahaman Anda mengenai perbedaan skenario Kode Etik & Standar IASII vs ISACA.</p>
+                    </div>
+
+                    <!-- Score Counter -->
+                    <div class="bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl text-center self-start sm:self-auto">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Skor Kuis</span>
+                        <span id="quiz-score-display" class="font-heading font-extrabold text-xl text-amber-400">0 / 5</span>
                     </div>
                 </div>
 
-                <!-- Graphic Representation Container -->
-                <div class="bg-slate-950 p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-8">
-                    <!-- Infographic Header Banner -->
-                    <div class="text-center bg-gradient-to-r from-sky-900 via-slate-800 to-emerald-900 py-6 px-4 rounded-xl border border-slate-700">
-                        <h3 class="font-heading text-xl sm:text-2xl font-extrabold tracking-wider uppercase text-amber-300">
-                            Komparasi Kode Etik & Standar Audit Sistem Informasi
+                <!-- Quiz Container -->
+                <div id="quiz-box" class="space-y-6">
+                    <div id="quiz-question-card" class="bg-slate-950 p-6 rounded-xl border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+                            <span id="quiz-q-num">Pertanyaan 1 dari 5</span>
+                            <span id="quiz-q-category" class="text-sky-400">Kode Etik</span>
+                        </div>
+                        <h3 id="quiz-q-text" class="font-heading text-base sm:text-lg font-bold text-white">
+                            <!-- Question injected by JS -->
                         </h3>
-                        <p class="text-xs sm:text-sm text-slate-300 mt-1 font-mono tracking-widest uppercase">IASII vs ISACA</p>
-                    </div>
 
-                    <!-- Side by Side Visual Comparison Grid -->
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <!-- IASII Visual Block -->
-                        <div class="bg-sky-950/40 border border-sky-800/50 rounded-xl p-5 space-y-4">
-                            <div class="bg-sky-900/80 text-sky-200 font-bold text-center py-2 rounded-lg text-lg font-heading tracking-wide">
-                                IASII <span class="text-xs font-normal block text-sky-300">Ikatan Audit Sistem Informasi Indonesia</span>
-                            </div>
-                            
-                            <!-- Box 1 -->
-                            <div class="bg-slate-900/80 p-3.5 rounded-lg border border-sky-900/50 text-xs space-y-1">
-                                <span class="font-bold text-amber-400 block text-center uppercase tracking-wider mb-2">PROFIL SINGKAT</span>
-                                <p class="text-slate-300">• Berdiri 20 Mei 2004, Jakarta</p>
-                                <p class="text-slate-300">• Komunitas Nasional (Indonesia)</p>
-                                <p class="text-slate-300">• Fokus: Pemeriksaan, pengendalian, dan pengamanan sistem informasi</p>
-                            </div>
-
-                            <!-- Box 2 -->
-                            <div class="bg-slate-900/80 p-3.5 rounded-lg border border-sky-900/50 text-xs space-y-1.5">
-                                <span class="font-bold text-amber-400 block text-center uppercase tracking-wider mb-2">KODE ETIK (7 BUTIR)</span>
-                                <p class="text-slate-300">• Berjiwa Pancasila & bertaqwa kepada Tuhan YME</p>
-                                <p class="text-slate-300">• Integritas & keluhuran budi</p>
-                                <p class="text-slate-300">• Mengutamakan kepentingan organisasi di atas pribadi</p>
-                                <p class="text-slate-300">• Terus belajar & berbagi ilmu</p>
-                                <p class="text-slate-300">• Membangun reputasi bermartabat</p>
-                                <p class="text-slate-300">• Independen & tidak bergantung pihak luar</p>
-                                <p class="text-slate-300">• Santun, demokratis, berbaik sangka</p>
-                            </div>
-
-                            <!-- Box 3 -->
-                            <div class="bg-slate-900/80 p-3.5 rounded-lg border border-sky-900/50 text-xs space-y-1.5">
-                                <span class="font-bold text-amber-400 block text-center uppercase tracking-wider mb-2">STANDAR AUDIT (SASI)</span>
-                                <p class="text-slate-300">• SASI (Berlaku sejak 2007)</p>
-                                <p class="text-slate-300 font-semibold text-sky-300">• Tersusun 7 kelompok linear:</p>
-                                <p class="text-slate-400 pl-3">S-1 Penugasan Audit</p>
-                                <p class="text-slate-400 pl-3">S-2 Independensi & Objektivitas</p>
-                                <p class="text-slate-400 pl-3">S-3 Profesionalisme & Kompetensi</p>
-                                <p class="text-slate-400 pl-3">S-4 Perencanaan</p>
-                                <p class="text-slate-400 pl-3">S-5 Pelaksanaan (supervisi, bukti, kertas kerja)</p>
-                                <p class="text-slate-400 pl-3">S-6 Pelaporan</p>
-                                <p class="text-slate-400 pl-3">S-7 Tindak Lanjut</p>
-                            </div>
+                        <!-- Options Grid -->
+                        <div id="quiz-options-grid" class="grid gap-3 pt-2">
+                            <!-- Options injected by JS -->
                         </div>
 
-                        <!-- ISACA Visual Block -->
-                        <div class="bg-emerald-950/40 border border-emerald-800/50 rounded-xl p-5 space-y-4">
-                            <div class="bg-emerald-900/80 text-emerald-200 font-bold text-center py-2 rounded-lg text-lg font-heading tracking-wide">
-                                ISACA <span class="text-xs font-normal block text-emerald-300">Information Systems Audit and Control Association</span>
-                            </div>
-
-                            <!-- Box 1 -->
-                            <div class="bg-slate-900/80 p-3.5 rounded-lg border border-emerald-900/50 text-xs space-y-1">
-                                <span class="font-bold text-amber-400 block text-center uppercase tracking-wider mb-2">PROFIL SINGKAT</span>
-                                <p class="text-slate-300">• Berdiri 1969 (EDP Auditors Assoc.)</p>
-                                <p class="text-slate-300">• Lebih dari 115.000 anggota, 180+ negara</p>
-                                <p class="text-slate-300">• Fokus: Tata kelola, manajemen TI, audit, kontrol, risiko</p>
-                            </div>
-
-                            <!-- Box 2 -->
-                            <div class="bg-slate-900/80 p-3.5 rounded-lg border border-emerald-900/50 text-xs space-y-1.5">
-                                <span class="font-bold text-amber-400 block text-center uppercase tracking-wider mb-2">KODE ETIK (8 BUTIR)</span>
-                                <p class="text-slate-300">• Dukung standar tata kelola TI</p>
-                                <p class="text-slate-300">• Objektivitas & kecermatan profesional (due care)</p>
-                                <p class="text-slate-300">• Layani stakeholder secara sah</p>
-                                <p class="text-slate-300">• Jaga privasi & kerahasiaan data</p>
-                                <p class="text-slate-300">• Jaga kompetensi sesuai keahlian</p>
-                                <p class="text-slate-300">• Ungkapkan temuan secara jujur</p>
-                                <p class="text-slate-300">• Dukung edukasi profesi TI</p>
-                                <p class="text-slate-300">• Tidak mencemarkan nama profesi</p>
-                            </div>
-
-                            <!-- Box 3 -->
-                            <div class="bg-slate-900/80 p-3.5 rounded-lg border border-emerald-900/50 text-xs space-y-1.5">
-                                <span class="font-bold text-amber-400 block text-center uppercase tracking-wider mb-2">STANDAR AUDIT (ITAF)</span>
-                                <p class="text-slate-300">• ITAF (Kini Edisi ke-5, 2026)</p>
-                                <p class="text-slate-300 font-semibold text-emerald-300">• Tersusun 3 kategori berjenjang:</p>
-                                <p class="text-slate-400 pl-3"><strong class="text-slate-300">1000-an Standar Umum:</strong> etika, independensi, kompetensi</p>
-                                <p class="text-slate-400 pl-3"><strong class="text-slate-300">1200-an Standar Pelaksanaan:</strong> perencanaan, bukti, supervisi</p>
-                                <p class="text-slate-400 pl-3"><strong class="text-slate-300">1400-an Standar Pelaporan:</strong> pengungkapan, tindak lanjut</p>
-                                <p class="text-slate-300 italic pt-1">• Dilengkapi Guidelines & COBIT</p>
-                            </div>
+                        <!-- Feedback Area -->
+                        <div id="quiz-feedback" class="hidden p-4 rounded-xl text-xs sm:text-sm font-medium leading-relaxed">
+                            <!-- Feedback text injected by JS -->
                         </div>
                     </div>
 
-                    <!-- Summary Bottom Box -->
-                    <div class="bg-amber-950/30 border border-amber-600/40 rounded-xl p-4 text-xs space-y-2">
-                        <span class="font-bold text-amber-400 block uppercase tracking-wider text-center text-sm">PERBEDAAN UTAMA</span>
-                        <div class="grid sm:grid-cols-2 gap-3 text-slate-300 pt-1">
-                            <div>
-                                <p>• <strong class="text-amber-200">Cakupan:</strong> IASII berskala nasional (Indonesia); ISACA berskala global (180+ negara).</p>
-                                <p class="mt-1">• <strong class="text-amber-200">Sifat Kode Etik:</strong> IASII menonjolkan nilai Pancasila & moral kebangsaan; ISACA menonjolkan tata kelola perusahaan universal.</p>
-                            </div>
-                            <div>
-                                <p>• <strong class="text-amber-200">Struktur Standar:</strong> SASI tersusun 7 kelompok linear (S-1 s.d. S-7); ITAF tersusun 3 tingkat berjenjang (1000, 1200, 1400).</p>
-                                <p class="mt-1">• <strong class="text-amber-200">Ekosistem:</strong> IASII didukung SKKNI & Kominfo; ISACA didukung sertifikasi global (CISA, CISM) & COBIT.</p>
-                            </div>
-                        </div>
+                    <!-- Quiz Navigation -->
+                    <div class="flex justify-between items-center">
+                        <button onclick="resetQuizGame()" class="text-xs text-slate-400 hover:text-white transition-colors">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Ulangi Kuis
+                        </button>
+                        <button id="quiz-btn-next" onclick="nextQuizQuestion()" class="hidden bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-700 hover:to-emerald-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all shadow">
+                            Pertanyaan Selanjutnya <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <!-- Kesimpulan & Sintesis -->
-            <section id="sintesis" class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+            <section class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
                 <div class="flex items-center gap-3">
-                    <div class="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
-                        <i class="fa-solid fa-lightbulb text-xl"></i>
+                    <div class="p-2.5 bg-emerald-100 text-emerald-700 rounded-xl">
+                        <i class="fa-solid fa-shield-cat text-xl"></i>
                     </div>
-                    <h2 class="font-heading text-2xl font-bold text-slate-900">Kesimpulan & Rekonsiliasi Sintesis</h2>
+                    <div>
+                        <h2 class="font-heading text-2xl font-bold text-slate-900">Kesimpulan Sintesis Tugas</h2>
+                        <p class="text-xs text-slate-500">Perspektif Harmonisasi Regulasi untuk Auditor SI Indonesia (Bakhri - UNUSA 2026)</p>
+                    </div>
                 </div>
-                <div class="text-slate-600 leading-relaxed space-y-4 text-sm sm:text-base">
+
+                <div class="text-slate-600 text-sm leading-relaxed space-y-3 pt-2">
                     <p>
-                        IASII dan ISACA sama-sama berperan penting sebagai organisasi profesi yang menetapkan kode etik dan standar audit sistem informasi guna menjaga kualitas, integritas, dan akuntabilitas pelaksanaan audit.
-                    </p>
-                    <div class="grid md:grid-cols-2 gap-4 my-4">
-                        <div class="p-4 rounded-xl bg-sky-50 border border-sky-100">
-                            <h4 class="font-bold text-sky-900 mb-1 flex items-center gap-2">
-                                <i class="fa-solid fa-flag text-sky-600"></i> Peran IASII
-                            </h4>
-                            <p class="text-xs text-sky-800 leading-relaxed">
-                                Hadir sebagai representasi komunitas audit SI berskala nasional dengan penekanan nilai kebangsaan (Pancasila) dan kebersamaan, memberikan konteks lokal serta legitimasi kelembagaan nasional (SKKNI).
-                            </p>
-                        </div>
-                        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
-                            <h4 class="font-bold text-emerald-900 mb-1 flex items-center gap-2">
-                                <i class="fa-solid fa-globe text-emerald-600"></i> Peran ISACA
-                            </h4>
-                            <p class="text-xs text-emerald-800 leading-relaxed">
-                                Hadir sebagai asosiasi profesi berskala global dengan penekanan pada profesionalisme tata kelola perusahaan universal dan pembaruan standar berkala (ITAF Ed. 5) yang relevan dengan tren teknologi AI dan analitik data.
-                            </p>
-                        </div>
-                    </div>
-                    <p class="font-medium text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <i class="fa-solid fa-circle-check text-emerald-600 mr-2"></i>
-                        <span class="underline underline-offset-4 decoration-sky-500 font-bold">Prinsip Saling Melengkapi:</span> Bagi auditor sistem informasi di Indonesia, kedua acuan ini tidak saling meniadakan, melainkan bersifat <span class="italic">komplementer</span>. SASI/Kode Etik IASII memandu kepatuhan dan moralitas lokal, sedangkan ITAF/Code of Ethics ISACA memberikan standar internasional untuk daya saing global.
+                        IASII dan ISACA memiliki peran yang saling melengkapi (<span class="font-semibold text-slate-900">komplementer</span>). Kode Etik & Standar SASI IASII memberikan fondasi moral kebangsaan (Pancasila) dan kesesuaian dengan regulasi/SKKNI di Indonesia. Sementara itu, Code of Ethics & ITAF ISACA memberikan kerangka teknis berskala internasional yang adaptif terhadap tren teknologi masa kini seperti Kecerdasan Buatan (AI) dan Data Analytics.
                     </p>
                 </div>
             </section>
 
-            <!-- Referensi / Daftar Pustaka -->
-            <section class="bg-slate-100 rounded-2xl p-6 border border-slate-200 text-xs text-slate-600 space-y-2">
-                <h3 class="font-heading font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-book-bookmark"></i> Daftar Pustaka & Acuan Resmi
-                </h3>
-                <ul class="space-y-1.5 list-disc list-inside">
-                    <li>Ikatan Audit Sistem Informasi Indonesia (IASII). (2026). <em>Tentang IASII, Kode Etik, & SASI IASII</em>. Diakses dari <a href="https://iasii.or.id/" class="text-sky-600 underline" target="_blank">https://iasii.or.id/</a></li>
-                    <li>ISACA. (2026). <em>Code of Professional Ethics</em>. Diakses dari <a href="https://www.isaca.org/credentialing/code-of-professional-ethics" class="text-sky-600 underline" target="_blank">https://www.isaca.org/credentialing/code-of-professional-ethics</a></li>
-                    <li>ISACA. (2026). <em>ISACA Launches Future-Ready IT Audit Framework Update to Strengthen Digital Trust (ITAF, 5th Edition)</em>. Diakses dari <a href="https://www.isaca.org/itaf" class="text-sky-600 underline" target="_blank">https://www.isaca.org/itaf</a></li>
-                </ul>
-            </section>
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-center text-xs no-print">
         <div class="max-w-7xl mx-auto px-4 space-y-2">
-            <p>Tugas Audit Sistem Informasi • Program Studi S1 Sistem Informasi UNUSA 2026</p>
-            <p class="text-slate-500">Disusun oleh Bakhri (NIM: 3130023013)</p>
+            <p class="font-medium text-slate-300">Tugas Mata Kuliah Audit Sistem Informasi • UNUSA 2026</p>
+            <p class="text-slate-500">Disusun oleh: <strong class="text-slate-400">Bakhri (NIM: 3130023013)</strong> • S1 Sistem Informasi UNUSA</p>
         </div>
     </footer>
 
+    <script>
+        
+        // 1. Audio Speech Synthesis Logic
+        let isSpeaking = false;
+        const synth = window.speechSynthesis;
+
+        function toggleAudioNarration() {
+            if (!('speechSynthesis' in window)) {
+                alert("Fitur narasi audio Speech Synthesis tidak didukung pada browser Anda.");
+                return;
+            }
+
+            const btnText = document.getElementById('audio-text');
+            const btnIcon = document.getElementById('audio-icon');
+
+            if (isSpeaking) {
+                synth.cancel();
+                isSpeaking = false;
+                btnText.textContent = "Narasi Audio";
+                btnIcon.className = "fa-solid fa-volume-high";
+            } else {
+                const textToRead = "Tugas Mata Kuliah Audit Sistem Informasi. Disusun oleh Bakhri, NIM 3130023013, Universitas Nahdlatul Ulama Surabaya 2026. " +
+                    "Studi komparasi antara IASII dan ISACA. IASII didirikan pada 20 Mei 2004 di Jakarta, berfokus pada acuan nasional dengan Kode Etik berjiwa Pancasila dan standar SASI dalam 7 kelompok linear. " +
+                    "ISACA berdiri sejak 1969, berfokus pada skala global dengan kerangka ITAF 3 kategori berjenjang dan pembaruan edisi ke-5 tahun 2026 yang mengadopsi audit AI dan data analitik. " +
+                    "Kedua standar ini saling melengkapi bagi praktisi audit di Indonesia.";
+
+                const utterance = new SpeechSynthesisUtterance(textToRead);
+                utterance.lang = 'id-ID';
+                utterance.rate = 1.0;
+
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    btnText.textContent = "Narasi Audio";
+                    btnIcon.className = "fa-solid fa-volume-high";
+                };
+
+                synth.speak(utterance);
+                isSpeaking = true;
+                btnText.textContent = "Hentikan Audio";
+                btnIcon.className = "fa-solid fa-square-stop";
+            }
+        }
+
+        // 2. Audit Simulator Logic
+        function runAuditSimulator() {
+            const scope = document.getElementById('sim-scope').value;
+            const tech = document.getElementById('sim-tech').value;
+            const cert = document.getElementById('sim-cert').value;
+
+            const badge = document.getElementById('sim-badge');
+            const title = document.getElementById('sim-title');
+            const desc = document.getElementById('sim-desc');
+            const checklist = document.getElementById('sim-checklist');
+
+            if (tech === 'ai_analytics' || scope === 'multinational' || cert === 'cisa') {
+                badge.className = "px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30";
+                badge.textContent = "ISACA / ITAF Recommended";
+                title.textContent = "Rekomendasi Utama: ITAF (ISACA) Edisi ke-5 + COBIT";
+                desc.textContent = "Penugasan memerlukan kerangka kerja global ITAF (1000, 1200, 1400 series) yang mendukung audit tata kelola AI, Agile development, dan sertifikasi CISA.";
+                
+                checklist.innerHTML = `
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-check-double text-emerald-400"></i> Kerangka Kerja: ITAF 5th Edition (2026)</div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-check-double text-emerald-400"></i> Acuan Etika: ISACA Code of Professional Ethics (8 Points)</div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-check-double text-emerald-400"></i> Fokus Khusus: AI Governance & Data Analytics Audit Guidelines</div>
+                `;
+            } else {
+                badge.className = "px-2.5 py-0.5 rounded text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30";
+                badge.textContent = "IASII / SASI Recommended";
+                title.textContent = "Rekomendasi Utama: SASI (IASII) + SKKNI Kominfo";
+                desc.textContent = "Penugasan sangat cocok menggunakan SASI (7 Kelompok Standar Linear) dengan kepatuhan Kode Etik IASII berlandaskan Pancasila dan SKKNI.";
+                
+                checklist.innerHTML = `
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-check-double text-sky-400"></i> Kerangka Kerja: SASI (S-1 s/d S-7 Linear)</div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-check-double text-sky-400"></i> Acuan Etika: Kode Etik IASII Berjiwa Pancasila</div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-check-double text-sky-400"></i> Kepatuhan Lokal: SKKNI Auditor Teknologi Informasi Kemkominfo</div>
+                `;
+            }
+        }
+
+        // 3. Visual View Switcher
+        function switchVisualView(viewName) {
+            const cardsContainer = document.getElementById('view-cards-container');
+            const vennContainer = document.getElementById('view-venn-container');
+            const chartContainer = document.getElementById('view-chart-container');
+
+            const btnCards = document.getElementById('view-btn-cards');
+            const btnVenn = document.getElementById('view-btn-venn');
+            const btnChart = document.getElementById('view-btn-chart');
+
+            // Reset buttons style
+            [btnCards, btnVenn, btnChart].forEach(btn => {
+                btn.className = "px-3.5 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+            });
+
+            // Hide all views
+            cardsContainer.classList.add('hidden');
+            vennContainer.classList.add('hidden');
+            chartContainer.classList.add('hidden');
+
+            if (viewName === 'cards') {
+                cardsContainer.classList.remove('hidden');
+                btnCards.className = "px-3.5 py-2 rounded-lg bg-white text-slate-900 shadow-sm transition-all font-bold";
+            } else if (viewName === 'venn') {
+                vennContainer.classList.remove('hidden');
+                btnVenn.className = "px-3.5 py-2 rounded-lg bg-white text-slate-900 shadow-sm transition-all font-bold";
+            } else if (viewName === 'chart') {
+                chartContainer.classList.remove('hidden');
+                btnChart.className = "px-3.5 py-2 rounded-lg bg-white text-slate-900 shadow-sm transition-all font-bold";
+                initRadarChart();
+            }
+        }
+
+        // Accordion Toggle Item Detail
+        function toggleItemDetail(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        // 4. Chart.js Radar Visualization
+        let radarChartInstance = null;
+        function initRadarChart() {
+            if (radarChartInstance) return;
+
+            const ctx = document.getElementById('comparisonRadarChart').getContext('2d');
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Pancasila & Kebangsaan',
+                        'Jangkauan Global',
+                        'Tata Kelola Enterprise',
+                        'Kesiapan AI & Agile',
+                        'Alur Standar Linear',
+                        'Kepatuhan SKKNI'
+                    ],
+                    datasets: [
+                        {
+                            label: 'IASII (Nasional)',
+                            data: [100, 30, 70, 60, 95, 100],
+                            fill: true,
+                            backgroundColor: 'rgba(2, 132, 199, 0.2)',
+                            borderColor: 'rgb(2, 132, 199)',
+                            pointBackgroundColor: 'rgb(2, 132, 199)',
+                        },
+                        {
+                            label: 'ISACA (Global)',
+                            data: [20, 100, 95, 95, 70, 70],
+                            fill: true,
+                            backgroundColor: 'rgba(22, 163, 74, 0.2)',
+                            borderColor: 'rgb(22, 163, 74)',
+                            pointBackgroundColor: 'rgb(22, 163, 74)',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#f1f5f9' },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 5. Live Search Filter for Table
+        function filterComparisonTable() {
+            const query = document.getElementById('table-search').value.toLowerCase();
+            const rows = document.querySelectorAll('.matrix-row');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // 6. Interactive Quiz Engine
+        const quizData = [
+            {
+                q: "Organisasi mana yang memiliki Kode Etik berbasis nilai kebangsaan Pancasila dan ketakwaan kepada Tuhan YME?",
+                category: "Kode Etik",
+                options: ["ISACA", "IASII", "Keduanya", "Tidak Ada"],
+                correct: 1,
+                exp: "IASII menyusun 7 Butir Pernyataan Kode Etik yang berlandaskan jiwa Pancasila dan moralitas kebangsaan Indonesia."
+            },
+            {
+                q: "Standar Audit Sistem Informasi (SASI) yang diterbitkan IASII memiliki struktur tersusun dalam...",
+                category: "Standar Audit",
+                options: ["3 Kategori Berjenjang", "7 Kelompok Linear", "5 Pilar Utama", "10 Prinsip Dasar"],
+                correct: 1,
+                exp: "SASI terdiri dari 7 kelompok linear (S-1 Penugasan s.d S-7 Tindak Lanjut) yang mengikuti siklus alur audit."
+            },
+            {
+                q: "Pembaruan ITAF Edisi ke-5 (2026) dari ISACA dirancang secara khusus untuk mengakomodasi tren modern...",
+                category: "Standar ITAF",
+                options: ["Hukum Ketenagakerjaan", "Audit AI Governance, Agile & Data Analytics", "Pajak Usaha", "Manajemen Pabrik Manufaktur"],
+                correct: 1,
+                exp: "ITAF 5th Edition (2026) diperbarui untuk memperkuat Digital Trust mencakup audit Artificial Intelligence, Agile, dan Analytics."
+            },
+            {
+                q: "Manakah sertifikasi profesional global yang berada di bawah naungan ISACA?",
+                category: "Sertifikasi",
+                options: ["CISA & CISM", "SKKNI Kemkominfo", "SASI Cert", "PASI Master"],
+                correct: 0,
+                exp: "ISACA memfasilitasi sertifikasi global diakui dunia seperti CISA (Certified Information Systems Auditor) dan CISM."
+            },
+            {
+                q: "Bagaimana hubungan terbaik antara acuan IASII dan ISACA bagi auditor SI di Indonesia?",
+                category: "Sintesis",
+                options: ["Saling Berlawanan", "Saling Meniadakan", "Saling Melengkapi (Komplementer)", "Tidak Relevan"],
+                correct: 2,
+                exp: "IASII memberikan kepatuhan regulasi/moral nasional, sedangkan ISACA memberikan kerangka kerja terbaik berskala internasional."
+            }
+        ];
+
+        let currentQIndex = 0;
+        let score = 0;
+
+        function loadQuizQuestion() {
+            const q = quizData[currentQIndex];
+            document.getElementById('quiz-q-num').textContent = `Pertanyaan ${currentQIndex + 1} dari ${quizData.length}`;
+            document.getElementById('quiz-q-category').textContent = q.category;
+            document.getElementById('quiz-q-text').textContent = q.q;
+
+            const grid = document.getElementById('quiz-options-grid');
+            grid.innerHTML = '';
+
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.className = "hidden p-4 rounded-xl text-xs sm:text-sm font-medium leading-relaxed";
+            document.getElementById('quiz-btn-next').classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs sm:text-sm font-medium text-slate-200 transition-all flex items-center justify-between";
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-slate-500"></i>`;
+                btn.onclick = () => checkQuizAnswer(idx, btn);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(selectedIndex, selectedBtn) {
+            const q = quizData[currentQIndex];
+            const feedback = document.getElementById('quiz-feedback');
+            const allBtns = document.getElementById('quiz-options-grid').children;
+
+            // Disable all buttons after click
+            for (let btn of allBtns) {
+                btn.disabled = true;
+            }
+
+            if (selectedIndex === q.correct) {
+                score++;
+                selectedBtn.className = "w-full text-left p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500 text-xs sm:text-sm font-medium text-emerald-200 flex items-center justify-between";
+                selectedBtn.innerHTML = `<span>${q.options[selectedIndex]}</span> <i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+                
+                feedback.className = "block p-4 rounded-xl text-xs sm:text-sm bg-emerald-950/60 border border-emerald-500/50 text-emerald-200";
+                feedback.innerHTML = `<strong>Benar!</strong> ${q.exp}`;
+            } else {
+                selectedBtn.className = "w-full text-left p-3.5 rounded-xl bg-rose-950/80 border border-rose-500 text-xs sm:text-sm font-medium text-rose-200 flex items-center justify-between";
+                selectedBtn.innerHTML = `<span>${q.options[selectedIndex]}</span> <i class="fa-solid fa-circle-xmark text-rose-400"></i>`;
+                
+                feedback.className = "block p-4 rounded-xl text-xs sm:text-sm bg-rose-950/60 border border-rose-500/50 text-rose-200";
+                feedback.innerHTML = `<strong>Kurang Tepat.</strong> Jawaban yang benar: <em>${q.options[q.correct]}</em>.<br>${q.exp}`;
+            }
+
+            document.getElementById('quiz-score-display').textContent = `${score} / ${quizData.length}`;
+            document.getElementById('quiz-btn-next').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            currentQIndex++;
+            if (currentQIndex < quizData.length) {
+                loadQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            const card = document.getElementById('quiz-question-card');
+            card.innerHTML = `
+                <div class="text-center py-6 space-y-3">
+                    <div class="w-16 h-16 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center text-3xl mx-auto border border-amber-400/30">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-white">Kuis Selesai!</h3>
+                    <p class="text-sm text-slate-300">Skor Akhir Anda: <strong class="text-amber-400 font-bold text-lg">${score} dari ${quizData.length}</strong></p>
+                    <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                        ${score === 5 ? "Luar biasa! Anda memahami komparasi IASII vs ISACA secara sempurna." : "Bagus! Anda telah mempelajari poin-poin utama perbedaan IASII dan ISACA."}
+                    </p>
+                </div>
+            `;
+            document.getElementById('quiz-btn-next').classList.add('hidden');
+        }
+
+        function resetQuizGame() {
+            currentQIndex = 0;
+            score = 0;
+            document.getElementById('quiz-score-display').textContent = `0 / ${quizData.length}`;
+            
+            // Restore initial question card layout
+            const card = document.getElementById('quiz-question-card');
+            card.innerHTML = `
+                <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+                    <span id="quiz-q-num">Pertanyaan 1 dari 5</span>
+                    <span id="quiz-q-category" class="text-sky-400">Kode Etik</span>
+                </div>
+                <h3 id="quiz-q-text" class="font-heading text-base sm:text-lg font-bold text-white"></h3>
+                <div id="quiz-options-grid" class="grid gap-3 pt-2"></div>
+                <div id="quiz-feedback" class="hidden p-4 rounded-xl text-xs sm:text-sm font-medium leading-relaxed"></div>
+            `;
+            loadQuizQuestion();
+        }
+
+        // 7. Clipboard Copy Helper
+        function copySummaryToClipboard() {
+            const summaryText = `TUGAS AUDIT SISTEM INFORMASI (UNUSA 2026)\n` +
+                `Disusun oleh: Bakhri (NIM: 3130023013)\n\n` +
+                `RINGKASAN KOMPARASI IASII VS ISACA:\n` +
+                `1. IASII (Nasional - Berdiri 2004): Kode Etik berjiwa Pancasila; Standar SASI tersusun 7 kelompok linear; Terintegrasi SKKNI Kominfo.\n` +
+                `2. ISACA (Global - Berdiri 1969): Code of Ethics universal; Standar ITAF 3 kategori berjenjang (1000, 1200, 1400); Edisi ke-5 (2026) mencakup Audit AI & Agile.\n` +
+                `3. Kesimpulan: Bersifat komplementer (saling melengkapi) untuk auditor SI di Indonesia.`;
+
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = summaryText;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            alert("Ringkasan tugas berhasil disalin ke clipboard!");
+        }
+
+        window.onload = function() {
+            runAuditSimulator();
+            loadQuizQuestion();
+        };
+    </script>
 </body>
 </html>
